@@ -113,7 +113,7 @@ Dialog는 Input-Task-Output구조로 이루어져 있습니다.
 - Task : [5.1.2.2. Task](#task) 참조.
 - Output : [5.1.2.3. Output](#output) 참조.
 
-![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph6.png?raw=true){ width=50% }
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph6.png?raw=true)
 
 ##### <a name="input"></a>5.1.2.1. Input
 Input은 자연어 처리된 사용자 입력에서 Dialog를 발동시키기 위한 것을 선택하는 도구입니다. Input에는 Text, Regexp, Type, If, Intent, Entity 6가지를 입력할 수 있습니다.  
