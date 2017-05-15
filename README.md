@@ -81,7 +81,7 @@ DialogSet을 새로 등록하기 위해서는 왼쪽 사이드바의 "대화 관
 ![image](https://github.com/VictorJeon/dev-guide/blob/master/images/dialogedit.png?raw=true)
 
 ## 5. 챗봇 개발(Developing)
-ATHENA는 대화를 그래프 형식의 UI로 만들어, 사용자가 쉽게 편집하고, 개발할 수 있는 툴을 제공합니다.
+ATHENA는 대화를 그래프 형식의 UI로 만들어, 사용자가 쉽게 편집하고, 개발할 수 있는 툴을 제공합니다. 그래프는 \*.graph.js 형태의 파일로 저장되고, Task는 \*.js의 파일 형태로 저장됩니다.
 
 ### 5.1. Graph
 그래프를 사용하기 위해서는 오른쪽 위 선택창에서 봇을 선택한 후, 왼쪽 사이드바 중 "챗봇 개발"을 클릭합니다. 네모난 박스가 input-task-output 구조를 가진 하나의 Dialog입니다. 상단 메뉴바의 "detailed"를 클릭하면, 확장된 형태의 Dialog box를 볼 수 있습니다. Dialog간의 관계는 선으로 표현되며, Children 관계는 회색선, Call 관계는 주황색 선으로 표현됩니다.
@@ -93,16 +93,16 @@ ATHENA는 대화를 그래프 형식의 UI로 만들어, 사용자가 쉽게 편
 ![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph2.png?raw=true)
 
 #### 5.1.1. Add & Delete
-그래프에서 Child Dialog를 추가하기 위해서는 Parent Dialog의 +버튼을 클릭합니다.
+그래프에서 Child Dialog를 추가하기 위해서는 Parent Dialog의 +버튼을 클릭합니다. (단축키 : Insert)
 
 ![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph3.png?raw=true)
 
-Dialog를 삭제하기 위해서는 삭제하고자 하는 Dialog를 선택하고 x버튼을 클릭합니다.
+Dialog를 삭제하기 위해서는 삭제하고자 하는 Dialog를 선택하고 x버튼을 클릭합니다. (단축키 : Del)
 
 ![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph4.png?raw=true)
 
 #### 5.1.2. Edit
-Dialog를 수정하기 위해서는, 수정하고자 하는 Dialog를 선택하고, 수정버튼 (+의 왼쪽 버튼)을 클릭합니다.  
+Dialog를 수정하기 위해서는, 수정하고자 하는 Dialog를 선택하고, 수정버튼 (+의 왼쪽 버튼)을 클릭합니다. (단축키 : Enter)  
 
 ![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph5.png?raw=true)
 
@@ -113,7 +113,7 @@ Dialog는 Input-Task-Output구조로 이루어져 있습니다.
 - Task : [5.1.2.2. Task](#task) 참조.
 - Output : [5.1.2.3. Output](#output) 참조.
 
-![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph6.png?raw=true)
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph6.png?raw=true){ width=50% }
 
 ##### <a name="input"></a>5.1.2.1. Input
 Input은 자연어 처리된 사용자 입력에서 Dialog를 발동시키기 위한 것을 선택하는 도구입니다. Input에는 Text, Regexp, Type, If, Intent, Entity 6가지를 입력할 수 있습니다.  
