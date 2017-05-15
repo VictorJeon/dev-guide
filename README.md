@@ -116,12 +116,12 @@ Dialog는 Input-Task-Output구조로 이루어져 있습니다.
 ![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph6.png?raw=true)
 
 ##### <a name="input"></a>5.1.2.1. Input
-Input은 자연어 처리된 사용자 입력에서 Dialog를 발동시키기 위한 것을 선택하는 도구입니다. Input에는 Text, Regexp, Type, If, Intent, Entity 6가지를 입력할 수 있습니다.  
+Input은 자연어 처리된 사용자 입력에서 Dialog를 발동시키기 위한 것을 선택하는 도구입니다. Input에는 Keyword, Regexp, Type, If, Intent, Entity 6가지를 입력할 수 있습니다.  
 
-- Text : 단순 keyword를 입력할 수 있습니다. 버튼 아래에 자연어 처리된 preview를 볼 수 있으며, 사용자가 keyword가 포함된 문장을 입력할 시, 발동됩니다. (keyword 사이에 띄어쓰기를 할 시, AND 조건으로 처리됩니다.)
+- Keyword : 단순 keyword를 입력할 수 있습니다. 버튼 아래에 자연어 처리된 preview를 볼 수 있으며, 사용자가 keyword가 포함된 문장을 입력할 시, 발동됩니다. (keyword 사이에 띄어쓰기를 할 시, AND 조건으로 처리됩니다.)
 - Regexp : Regular Expression을 입력할 수 있습니다. 사용자가 regexp에 match되는 문장을 입력할 시, 발동됩니다.
 - Type : 주소, 핸드폰 번호, 자동차 번호, 날짜, 시간 등을 인식하는 Type을 선택할 수 있습니다.
-- If : (Task를 사용할 때 사용됩니다.) Javascript의 if 조건문과 동일하게 사용됩니다. 결과값이 True일 시, 발동됩니다.
+- If : (Task를 사용할 때 사용됩니다.) Javascript의 if 조건문과 동일하게 사용됩니다. 결과값이 True일 시, 발동됩니다. (if를  사용할 때는 if를 사용한 input을 두 개 이상 OR조건으로 사용하여야 합니다.)
 - Entity : 등록한 Entity를 선택할 수 있습니다. [3.1 Entity](#entity) 참조
 - Intent : 등록한 Intent를 선택할 수 있습니다. [3.2 Intent](#intent) 참조
 
@@ -137,13 +137,72 @@ Input의 OR조건은 다음과 같이 입력합니다.
 Task는 Dialog에서 function을 수행하기 위한 도구입니다. Dialog에서 발동할 Task를 선택할 수 있습니다. 자세한 사항은 [5.2 Task](#task)를 참조하시기 바랍니다.
 
 ##### <a name="output"></a>5.1.2.1. Output
+Output은 사용자에게 출력한 답변을 선택하기 위한 도구입니다. Output에는 Text, Image, Button, If, Call, ReturnCall, CallChild, Repeat, Up 9가지를 입력할 수 있습니다.  
+
+- Text : 답변을 텍스트 형태로 작성할 수 있습니다.
+- If : (Task를 사용할 때 사용됩니다.) Javascript의 if 조건문과 동일하게 사용됩니다. 결과값이 True일 시, 발동됩니다. (if를  사용할 때는 if를 사용한 Output을 두 개 이상 OR조건으로 사용하여야 합니다.)
+- Image : Image파일을 업로드 할 수 있습니다. 답변으로 Image를 내보냅니다.
+- Button : Button을 입력할 수 있습니다. 사용자는 타이핑 대신 버튼을 클릭해서 입력할 수 있습니다.
+- Call : 다른 Dialog를 호출하여 재사용할 수 있습니다. 호출 할때는 Dialog 이름으로 호출합니다.
+- ReturnCall : 
+- CallChild : 
+- Repeat : repeat를 사용하면 다시 이전 질문(Parent Dialog)을 반복할 수 있습니다. 의도한 답변이 없을 때 사용할 수 있습니다.
+- Up : 이전 단계(Parent의 Parent Dialog)로 이동할 때는 up을 이용합니다.
+
+Output의 AND조건은 다음과 같이 입력합니다.
+
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph9.png?raw=true)
+
+Output의 OR조건은 다음과 같이 입력합니다. Output을 OR조건으로 입력할 시, OR 조건의 답변들 중  랜덤선택됩니다. (if 조건문을 사용하지 않은 경우)
+
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/graph8.png?raw=true)
 
 #### 5.1.3. Shortcut
+##### Dialog Graph
+← ↓ ↑ →: Navigate Dialog  
+Ctrl + ↑ →: Move Dialog Up/Down  
+Enter: Open Edit Dialog  
+Esc: Cancel Edit  
+Insert: Add child dialog  
+Del: Delete Dialog  
+Space: Expand/Collapse Child Dialog  
+
+##### Dialog Editor
+Tab: Next (Input, Task, Output 전환, Input 등 여러 개 인경우 한줄씩 이동)  
+Ctrl+Enter: Save Dialog Modal  
+
+##### Code Editor
+Alt+←: Back (Dialog Graph에서 Code Editor로 온 후에 복귀)  
+
+#####Project Files  
+Ctrl+P: Open/Close Project Files  
+← ↓ ↑ →: Navigate Tree  
+Enter: Open File  
+
+##### Common
+/: Search Box  
+Ctrl+S: Save File  
+Ctrl+Z: Undo  
+?: keyboard shortcut help  
 
 ### <a name="task"></a>5.2. Task
+ATHENA의 봇은 사용자의 질문에 대한 정해진 답변만을 출력하는 것에 머물지 않습니다. 사용자의 질문, 요청 등 입력에 대해 Task(업무)를 수행하고, 이를 답변으로 출력하는 것을 목표로 합니다.  
+이때 사용자의 요청에 대한 수행할 업무를 정의한 것을 Task 라고 합니다. Task의 구현은 Javascript 언어로 구현하며, Task를 비롯한 자료들은 JSON 형태로 정의합니다.  
+Task는 *.js파일에서 정의되며, 편집창 왼쪽 파일트리 혹은 위쪽 탭에서 들어갈 수 있습니다.  
 
-### 5.2.1. Params
+### 5.2.1. Task Form
+Task의 기본적인 포맷은 다음과 같이 정의됩니다.  
+```javascript
+var bot = require(path.resolve('config/lib/bot')).getBot('yongwontestbot2');
 
+var defaultTask = {
+    name: 'defaultTask',
+    action: function(task, context, callback) {
+        callback(task, context);
+    }
+};
+bot.setTask("defaultTask", defaultTask);
+```
 ### 5.2.2. Action
 
 ## 6. 운영 관리(Management)
