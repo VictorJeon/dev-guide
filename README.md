@@ -192,8 +192,9 @@ Task는 *.js파일에서 정의되며, 편집창 왼쪽 파일트리 혹은 위�
 
 ### 5.2.1. Task Form
 Task의 기본적인 포맷은 다음과 같이 정의됩니다.  
+
 ```javascript
-var bot = require(path.resolve('config/lib/bot')).getBot('yongwontestbot2');
+var bot = require(path.resolve('config/lib/bot')).getBot('defaultbot');
 
 var defaultTask = {
     name: 'defaultTask',
@@ -204,6 +205,341 @@ var defaultTask = {
 bot.setTask("defaultTask", defaultTask);
 ```
 ### 5.2.2. Action
+Action 함수는 Task 내에서 실제 구현이 들어가 있는 함수로 다음과 같이 정의한다.  
+
+```javascript
+function actionName(task, context, callback) {	
+	// 여기에 Task에 처리할 내용을 구현한다. 
+	callback(task, context);			
+}
+```
+
+Action 함수는 세가지 파라메터 변수를 받으며, 그 정의는 다음과 같습니다.  
+첫번째, 파라미터 변수인 task는 action 함수에서 업무 처리에 필요한 정보를 JSON 형태로 받고, 처리한 결과를 담아서 return 하는 데 사용됩니다. 내부적으로는 action이 정의된 task와 같은 JSON 객체이다.  
+두번째, 파라미터 변수인 context는 문맥, 상황을 위한 변수입니다. 스마트한 봇을 구현하기 위해 대화의 문맥, 사용자의 정보 들을 context에 담아서 JSON 형태로 전달합니다.  
+세번째, 파라미터 변수인 callback은 결과를 return 하는 역할을 합니다. Action 함수는 비동기(Async) 방식으로 구현합니다. 그러므로 업무 처리가 끝나면 반드시 callback을 호출하여야 합니다.  
+Action 함수를 세가지 파라미터 변수로 표준화 함으로써 어떠한 업무를 처리하는 Action 함수도 동일한 구조로 구현할 수 있게 합니다. 다양한 업무처리에 필요한 변수가 달라질 수도 있는 점은 task와 context 변수를 JSON 으로 정의해서 필요한 정보를 JSON에 담아서 보내는 방식으로 처리합니다.
+
+#### 5.2.2.1. Task Parameter
+자세한 설명 전에 간단한 Action 함수를 예제로 정의해 봅니다. 아래 함수는 http 요청을 해서 웹에서 데이터를 가지고 옵니다. task는 node 기반 javascript로 작성할 수 있어 node library를 사용할 수 있다. 에러 예외 처리 등은 되어 있지 않는 예시용 함수입니다. 
+
+```javascript
+function httpAction(task, context, callback) {
+	var request = require('request');
+	request({url: task.url}, function (error, response, body) {
+	  if (!error && response.statusCode == 200) {
+		task.content = body;
+	    callback(task, context);
+	  }
+	})
+}
+```
+위에서 request 모듈은 node에서 많이 쓰이는 http request 라이브러리로 자세한 내용은 https://github.com/request/request 를 참고합니다. 
+
+다음으로 Task 파라미터 변수를 설정하는 방법을 알아봅니다.  
+Task를 정의할 때 추가하는 방법입니다. 미리 정의된 변수라고 생각할 수 있습니다.
+
+```javascript
+var googleTask = {
+	url: 'https://www.google.com',
+	action: httpAction,
+}
+```
+
+위와 같이 정의한 googleTask를 실행하면, task.uri 에 있는 google 주소에 접속에 페이지의 HTML을 읽어서 task.content에 저장합니다.
+
+```javascript
+var naverTask = {
+	url: 'http://www.naver.com',
+	action: httpAction,
+}
+```
+위와 같이 정의한 naverTask를 실행하면, task.uri 에 있는 naver 주소에 접속에 페이지의 HTML을 읽어서 task.content에 저장합니다.
+
+#### 5.2.2.2. Context Parameter
+
+context는 해당 task에 제한되지 않은 여러정보들을 담고 있습니다. 이를 통해 현재 사용자의 입력에 해당되는 정보뿐만 아니라, 사용자 정보 등 다양한 상황에 따른 처리를 할 수 있습니다.  
+현재 정의된 상황별 context는 다음과 같습니다.
+
+* context.user: 사용자의 정보를 담고 있다. 
+* context.bot: 현재 봇의 정보를 담고 있다. 
+* context.botUser: 현재 봇을 사용하는 사용자의 정보를 담고 있다. 
+* context.dialog: Dialog가 여러단계로 이루어지는 경우 대화의 문맥을 파악하기 위해 사용 한다. 
+	
+머니브레인 봇의 모든 데이터는 JSON을 기반으로 하므로, bot 개발시 필요한 경우 각 context 수준에 맞게 추가적인 key를 정의하여 사용할 수 있습니다. 
+
+### 5.2.3. Task 결과 후처리
+Action 함수에서 처리한 결과를 xpaht 와 regexp로 간편하게 추출하여 사용할 수 있습니다. 또는, 결과값을 http 등으로 받는 html 데이터를 xpath 를 사용하여 저장할 수 있습니다.  
+아래의 예시와 같이 하면 html 값에서 <title></title> 사이의 값을 xapth로 읽어서 task.title 에 저장합니다. _text: 'body' 로설정한 것은 task.body 에 있는 값을 사용해서 xpath 검색을 한다는 의미로 http 요청으로 받은 데이터가 task.body 에 저장되어 있기 때문입니다.  
+
+```javascript
+var xpathTask = {
+	url: 'https://www.google.co.kr/search?q=moneybrain.ai',
+	action: httpAction,
+	xpath: {
+	    _text: 'body',
+		title: '//title/text()'
+	}
+}
+```
+아래와 같이 하면 html 값에서 검색리스트를 task.doc 에 array 형태로 저장합니다. doc 하부에 _repeat에 있는 xpath로 목록을 가져와서 list와 link 값으로 array를 구성합니다. doc 과 다른 이름으로 추가 xpath를 지정하여 여러게의 list 을 담을 수 있습니다.  
+
+```javascript
+var xpathListTask = {
+	url: 'https://www.google.co.kr/search?q=moneybrain.ai',
+	action: httpAction,
+	xpath: {
+	    _text: 'body'
+		title: '//title/text()',
+        doc: {
+	      _repeat: '//div[@class="srg"]/div[@class="g"]',
+          list: '//a/text()',
+          link: '//a/@href',
+        }			
+	}
+}
+```
+정규식(Regular Expression)을 이용하여 결과값을 task 에 저장할 수 있습니다. 아래 예시에서는 정규식을 사용하여 html에서 title 값을 task.title에 저장합니다.  
+
+```javascript
+var xpathTask = {
+	url: 'https://www.google.com',
+	action: httpAction,
+	regexp: {
+	    _text: 'body',
+		title: /<title>(.*)<\/title>/
+	}
+}
+```
+아래와 같이 하면 검색 리스트 텍스트에서 regexp로 match하여 task.doc을 array 형태로 저장합니다. _repeat에 있는 정규식 g flag 로 검색하여 여러개의 매치를 찾고, ( ) 를 사용하여 변수에 저장합니다. link와 list의 숫자는 매치 저장에서 저장되는 순서이며 1번부터 시작합니다.  
+
+```javascript
+var xpathTask = {
+	url: 'https://www.google.com',
+	action: httpAction,
+	regexp: {
+	    _text: 'body',
+		title: /<title>(.*)<\/title>/
+		doc: {
+			_repeat: /<h class="r"><a.*href="(.*)".*>(.*)<\/a></h>/g
+			link: 1,
+			list: 2
+		}
+	}
+}
+```
+### 5.2.4. PreCallback,  PostCallback
+
+아래와 같이 task에 preCallback, postCallback 함수를 구현하여 action 함수를 호출하기 전, 후에 처리할 작업을 추가할 수 있습니다.  
+
+```javascript
+var sampleTask =
+{
+  name: 'sample',
+  preCallback: function(task, context, callback) {
+      // 여기서 Action 함수를 호출하기 전에 수행할 일을 구현
+	  callback(task, context);
+  },
+  action: sampleAction,
+  postCallback: function(task, context, callback) {
+      // 여기서 Action 함수를 호출한 후에 수행할 일을 구현
+	  callback(task, context);
+  }
+};
+```
+
+### 5.2.5. Action Parameter Definition
+
+Action 함수에서 사용할 Entity 정보를 paramDefs로 정의할 수 있습니다. Action 함수의 Entity 정보를 정의하는 이유는 Dialog를 통해서 Task 를 사용할 때 어떠한 정보를 넘겨주어야 하는지 파악할 수 있기 때문입니다. 필수적인 정보가 입력된 내용에 없을 경우는 봇이 자동으로 사용자에게 질문하여 정보를 얻을 수 있습니다.  
+
+```javascript
+var sampleTask =
+{
+  name: 'sample',
+  paramDefs: [
+    {name: '휴대폰', type: mobileType, require: false, dialog: '휴대폰Dialog'},
+  ],
+  action: sampleAction,
+};
+```
+
+paramDef 정의에는 다음의 속성들이 사용가능합니다.  
+
+* name: 정의할 엔터티 이름으로 task JSON 개체에 같은 이름으로 저장된다. 
+* require: boolean 형으로 필수 Entity 여부. 필수 Entity가 task에 없는 경우 봇이 사용자에게 요청하는 질문을 하여 입력을 받는다. 
+* question: String 형으로 봇이 사용자에게 Entity를 물어볼 경우 질문 내용
+* dialog: 봇이 사용자에게 Entity를 물어볼 경우 단순한 질문이 아니라, 몇단계의 dialog 가 있을 수 있는데 이를 정의한다. String 값이면 같은 이름의 dialog를 찾고, dialog 개체를 바로 참조할 수도 있다. 
+
+### 5.2.6. Task 구조화
+
+Task를 한가지 이상 조합하여 상위 Task를 만들 수 있습니다.  
+
+여러개의 Task를 연결하여 실행할 수 있습니다. 아래의 예시에서는 sequenceTask는 sampleTask1을 실행하고, sampleTask2를 실행합니다. 
+
+```javascript
+var sampleTask1 =
+{
+  name: 'sample1',
+  action: function (task, context, callback) {
+    task.result = 'sample1';
+    callback(task, context);
+  }
+};
+
+var sampleTask2 =
+{
+  name: 'sample2',
+  action: function (task, context, callback) {
+    task.result = 'sample2';
+    callback(task, context);
+  }
+};
+
+var sequenceTask = {
+	action: 'sequence'
+	tasks: [
+		sampleTask1,
+		sampleTask2,
+	]
+}
+```
+
+while이나 for 문처럼 특정조건이 true일때 까지 반복해서 Task을 수행하게 할 수 있습니다. 조건이 true인지를 체크하는 방법은 수식이나 boolean을 return 하는 함수로 할 수 있습니다. 아래 예에서는 10번까지 Task를 반복 수행합니다.  
+
+```
+var sequenceTask = {
+	action: 'while'
+	whileIf: function(task, context) {
+		if(!task.count) task.count = 0;
+		else task.count++;
+		
+	    return task.count <= 10;
+    }, 
+	actions: [
+		sampleTask1,
+		sampleTask2
+	]
+}
+```
+
+if 문처럼 특정 조건일때만 Task를 실행하게 할 수 있습니다. 조건이 true인지를 판단하는 것은 조건식이나 function 으로 정의가 가능합니다. 아래 예시에서는 sequence로 여러 task를 실행할 때 각 task if 조건이 맞는 경우에만 실행됩니다.  
+
+```
+var sequenceTask = {
+	action: 'sequence'
+	tasks: [
+		{
+		  name: 'sample1',
+		  if: function(task, context) {
+		    return task.mobile != undefined;
+		  },
+		  action: function (task, context, callback) {
+		    task.result = 'sample1';
+		    callback(task, context);
+		  }
+		},
+		{
+		  name: 'sample2',
+		  if: 'context.user.mobile == undefined',
+		  action: function (task, context, callback) {
+		    task.result = 'sample2';
+		    callback(task, context);
+		  }
+		}
+	]
+}
+```
+
+이러한 task 구조 상에서 다른 상하 task를 참조할 수 있습니다.  
+
+* task.topTask:  최상위 Task
+* task.parentTask: 상위 Task
+* task.preTask: 이전 Task
+
+### 5.2.7. Task 간 데이터 전달
+
+Task의 연결관계, 상하구조에서 데이터를 전달하기 위해서 기본적으로 preCallback, postCallback을 사용할 수 있습니다.  
+
+아래 예시에서는 preCallback을 통해 sequence 등의 이전 task에서 query 값을 가져와서 task.param으로 사용합니다. postCallback을 통해서는 task에서 처리한 result.query 값을 topTask에 저장해 놓습니다. 
+
+```javascript
+var sampleTask =
+{
+  name: 'sample',
+  preCallback: function(task, context, callback) {
+	  task.param.query = task.preTask.result.query;
+	  callback(task, context);
+  },
+  action: sampleAction,
+  postCallback: function(task, context, callback) {
+	  task.topTask.param.query = task.result.query;
+	  callback(task, context);
+  }
+};
+```
+아래와 같이 task 속성을 통해 데이터를 전달할 수도 있습니다.  
+
+```javscript
+var sampleTask = {
+  name: 'sample',
+  data: {
+	set: 'replace',
+	context: {
+	  user: ['result.doc']
+	}, 
+	task: {
+	  topTask: ['result.title'], 
+	  parent: ['param.title']
+	}
+  },
+  action: sampleAction
+};
+
+var sampleTask = {
+  name: 'sample',
+  data: {
+	get: 'merge',		
+    context: ['bot.botName', 'user.mobile'], 
+    task: ['topTask.name', parent.result.doc']
+  },
+  action: sampleAction
+};
+```
+
+data 속성 안내는 두가지 key 값으로 구분을 합니다.   
+
+* get: context 나 다른 task에서 값을 가져와 현재 task에 저장한다. 
+* set: 현재 task의 결과를 context 나 다른 task에 저장한다. 
+
+데이터를 전달하는데 다음의 옵션들이 있습니다.  
+
+* replace: 기본 옵션으로 같은 key의 데이터가 있으면 대체한다.
+* merge: 같은 key의 기존 데이터가 있으면 다른 부분만 새로 겹쳐서 합친다.
+* concat: 데이터가 array인 경우 두 array를 합쳐서 저장한다. array concat 함수와 동일
+
+### 5.2.8. Template Task 
+
+Template task를 사용해서 기존에 있던 task를 재사용하여 확장할 수 있습니다. task의 template 항목에 상속받을 template task 참조를 넣습니다. 참조의 방법은 일반 task참조와 동일합니다.
+
+아래의 예시에서는 googleTask의 url은 그대로 사용하고, moneybrainTask에서 task.param.q 만 변경하여 요청합니다.
+
+```javascript
+var moneybrainTask = {
+  name: 'moneybrainTask',
+  template: googleTask,
+  param: {
+	  q: 'moneybrain.ai'
+  }
+};
+
+var googleTask = {
+	url: 'https://www.google.com',
+	param: {
+		q: ''
+	},
+	action: httpAction,
+}
+```
 
 ## 6. 운영 관리(Management)
 
