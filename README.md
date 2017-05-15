@@ -44,8 +44,9 @@ Entity 생성 페이지에서 엔터티명, 내용을 입력하면 새로운 Ent
 
 - 엔터티 : 엔터티명. 이후 이 값을 대표명으로 사용하게 됩니다.
 - 내용 추가 : Entity에 속하는 내용을 입력하고 추가버튼 혹은 enter를 누르면, 내용이 목록에 추가됩니다.
+- 목록 : 각 내용에 동의어를 추가할 수 있습니다.
 
-![image](https://github.com/VictorJeon/dev-guide/blob/master/images/entitycreate.png?raw=true)
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/entitycreate2.png?raw=true)
 
 
 ### 3.2. <a name="intent"></a>의도(Intent)
@@ -159,31 +160,31 @@ Output의 OR조건은 다음과 같이 입력합니다. Output을 OR조건으로
 
 #### 5.1.3. Shortcut
 ##### Dialog Graph
-← ↓ ↑ →: Navigate Dialog  
-Ctrl + ↑ →: Move Dialog Up/Down  
-Enter: Open Edit Dialog  
-Esc: Cancel Edit  
-Insert: Add child dialog  
-Del: Delete Dialog  
-Space: Expand/Collapse Child Dialog  
+- ← ↓ ↑ → : Navigate Dialog  
+- Ctrl + ↑ → : Move Dialog Up/Down  
+- Enter : Open Edit Dialog  
+- Esc : Cancel Edit  
+- Insert : Add child dialog  
+- Del : Delete Dialog  
+- Space : Expand/Collapse Child Dialog  
 
 ##### Dialog Editor
-Tab: Next (Input, Task, Output 전환, Input 등 여러 개 인경우 한줄씩 이동)  
-Ctrl+Enter: Save Dialog Modal  
+- Tab : Next (Input, Task, Output 전환, Input 등 여러 개 인경우 한줄씩 이동)  
+- Ctrl+Enter : Save Dialog Modal  
 
 ##### Code Editor
-Alt+←: Back (Dialog Graph에서 Code Editor로 온 후에 복귀)  
+- Alt+← : Back (Dialog Graph에서 Code Editor로 온 후에 복귀)  
 
 #####Project Files  
-Ctrl+P: Open/Close Project Files  
-← ↓ ↑ →: Navigate Tree  
-Enter: Open File  
+- Ctrl+P : Open/Close Project Files  
+- ← ↓ ↑ → : Navigate Tree  
+- Enter : Open File  
 
 ##### Common
-/: Search Box  
-Ctrl+S: Save File  
-Ctrl+Z: Undo  
-?: keyboard shortcut help  
+- / : Search Box  
+- Ctrl+S : Save File  
+- Ctrl+Z : Undo  
+- ? : keyboard shortcut help  
 
 ### <a name="task"></a>5.2. Task
 ATHENA의 봇은 사용자의 질문에 대한 정해진 답변만을 출력하는 것에 머물지 않습니다. 사용자의 질문, 요청 등 입력에 대해 Task(업무)를 수행하고, 이를 답변으로 출력하는 것을 목표로 합니다.  
@@ -542,18 +543,42 @@ var googleTask = {
 ```
 
 ## 6. 운영 관리(Management)
+ATHENA는 실패한 대화를 체크하고, 다시 대화에 반영하여 봇이 말을 잘 할 수 있게 하는 운영 관리 기능을 제공합니다.
+
+### 6.1. Dialog 대화학습
+Dialog 대화학습에서는, 대화가 실패했을 때의 상황을 모아 보여줍니다. (대화 실패 : 기본 Dialog 발생)  
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/manage1.png?raw=true)
+표의 첫번째 열인 대화에서는 대화가 실패했을 때 사용자가 입력한 input을 보여줍니다. 각 대화 오른쪽의 대화수정 버튼을 클릭하면, 실패한 대화를 의도에 맞게 재배치하여 업데이트 할 수 있습니다.
+
+### 6.1. 의도 분석 대화학습
+의도분석 대화학습에서는, 대화가 실패했을 때, 인텐트를 모아 보여줍니다. (대화 실패 : 기본 Dialog 발생)  
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/manage3.png?raw=true)
+표의 실패 인텐트는 "추천 인텐트"를 뜻합니다. 오른쪽의 대화 수정 버튼을 누르면, 실패한 인텐트 들이 나옵니다. 실패한 인텐트들 중 추천 인텐트와 같은 의미를 가진다고 판단되는 것들을 체크하여 추가하면, 인텐트가 업데이트 됩니다.
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/manage4.png?raw=true)
 
 ## 7. 분석(Analytics)
+ATHENA에서는 봇에 대한 기본적인 Analytics를 제공하고 있으며, 웹 상으로 쉽게 확인할 수 있습니다.
+### 7.1. Dashboard
+봇에 대한 전반적인 Analytics를 보여주는 대쉬보드입니다.  
 
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/anal1.png?raw=true)
 
+### 7.2. 사용자수 분석
+일별 사용자수를 보여주는 분석 창입니다.  
 
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/anal2.png?raw=true)
 
+### 7.3. 대화별 사용량
+대화별 사용량 (사용자 input)을 보여주는 분석 창입니다.  
 
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/anal3.png?raw=true)
 
+### 7.4. 문장 성공률
+월별 문장 성공률을 보여주는 분석 창입니다.  
 
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/anal4.png?raw=true)
 
+### 7.5. Context 분석
+DialogSet을 사용할 시에, 딥러닝 유사도를 체크해볼 수 있는 Context 분석 창입니다.  
 
-
-
-
-
+![image](https://github.com/VictorJeon/dev-guide/blob/master/images/anal5.png?raw=true)
